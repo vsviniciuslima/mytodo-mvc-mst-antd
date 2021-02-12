@@ -1,25 +1,69 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from 'react'
+import { observer } from 'mobx-react-lite'
 
-function App() {
+const TodoView = observer(({ todo }) => {
+  function handleDoubleClick (ev) {
+    todo.toggle()
+  }
+
+  function handleRemoveClick (ev) {
+    ev.preventDefault()
+    todo.remove()
+  }
+
+  if (todo.done) {
+    return (
+      <li onDoubleClick={handleDoubleClick} key={todo.key}>
+        <strike>{todo.value}</strike>
+        <button onClick={handleRemoveClick}>🗑</button>
+      </li>
+    )
+  } else {
+    return (
+      <li onDoubleClick={handleDoubleClick} key={todo.key}>
+        {todo.value}
+        <button onClick={handleRemoveClick}>🗑</button>
+      </li>
+    )
+  }
+})
+
+const App = observer(({ store }) => {
+  const [todo, setTodo] = useState('')
+
+  function handleSubmit (ev) {
+    ev.preventDefault()
+    store.addTodo(todo)
+    console.log(todo)
+    setTodo('')
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='App'>
+      Todos
+      <form onSubmit={handleSubmit}>
+        <fieldset>
+          <legend>New Todo</legend>
+          <input
+            name='todo'
+            value={todo}
+            onChange={ev => setTodo(ev.target.value)}
+          />
+          <button>Add</button>
+        </fieldset>
+      </form>
+      <ul>{store.todos.map(todo => (
+        <TodoView
+          key={todo.key}
+          todo={todo}
+        />
+      ))}
+      </ul>
+      <p>
+        {store.itemsLeft} item(s) left
+      </p>
     </div>
-  );
-}
+  )
+})
 
-export default App;
+export default App
