@@ -1,32 +1,17 @@
+import logo from './logo.svg'
+import './App.css'
+
+import '../node_modules/antd/dist/antd.css'
+
 import { useState } from 'react'
 import { observer } from 'mobx-react-lite'
 
-const TodoView = observer(({ todo }) => {
-  function handleDoubleClick (ev) {
-    todo.toggle()
-  }
+import { Input } from 'antd'
 
-  function handleRemoveClick (ev) {
-    ev.preventDefault()
-    todo.remove()
-  }
+import { ArrowDownOutlined } from '@ant-design/icons'
 
-  if (todo.done) {
-    return (
-      <li onDoubleClick={handleDoubleClick} key={todo.key}>
-        <strike>{todo.value}</strike>
-        <button onClick={handleRemoveClick}>🗑</button>
-      </li>
-    )
-  } else {
-    return (
-      <li onDoubleClick={handleDoubleClick} key={todo.key}>
-        {todo.value}
-        <button onClick={handleRemoveClick}>🗑</button>
-      </li>
-    )
-  }
-})
+import TodoView from '../src/components/TodoView'
+import TodoList from '../src/components/TodoList'
 
 const App = observer(({ store }) => {
   const [todo, setTodo] = useState('')
@@ -40,28 +25,30 @@ const App = observer(({ store }) => {
 
   return (
     <div className='App'>
-      Todos
-      <form onSubmit={handleSubmit}>
-        <fieldset>
-          <legend>New Todo</legend>
-          <input
-            name='todo'
-            value={todo}
-            onChange={ev => setTodo(ev.target.value)}
-          />
-          <button>Add</button>
-        </fieldset>
-      </form>
-      <ul>{store.todos.map(todo => (
-        <TodoView
-          key={todo.key}
-          todo={todo}
+      <header className='App-header'>
+        <img src={logo} className='App-logo' alt='logo' />
+        Todos
+        <Input
+          onPressEnter={handleSubmit}
+          style={{ width: 600, height: 55 }}
+          placeholder='What needs to be done?'
+          prefix={<ArrowDownOutlined />}
+          name='todo'
+          value={todo}
+          onChange={ev => setTodo(ev.target.value)}
         />
-      ))}
-      </ul>
-      <p>
-        {store.itemsLeft} item(s) left
-      </p>
+        <TodoList
+          onChange={ev => setTodo(ev.target.value)}
+          itemsLeft={store.itemsLeft}
+        >
+          {store.todos.map(todo => (
+            <TodoView
+              key={todo.key}
+              todo={todo}
+            />
+          ))}
+        </TodoList>
+      </header>
     </div>
   )
 })
